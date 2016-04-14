@@ -1,0 +1,13 @@
+{
+  "name": "measurement-epiviz",
+  "description": "epiviz measurements explorer",
+  "version": "0.0.1",
+  "license": "MIT",
+  "dependencies": {
+    "angular": "1.5.x",
+    "jquery": "2.1.4",
+    "bootstrap": "3.3.6",
+    "angular-bootstrap": "1.2.4",
+    "ngInfiniteScroll": "1.2.2"
+  }
+}
