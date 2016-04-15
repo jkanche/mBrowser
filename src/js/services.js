@@ -52,6 +52,28 @@ mServices.factory('measurementAPI', function($http, $q) {
 
     };
 
+    service.getDataQueries = function(dataProvider, dataSource) {
+
+        var deferred = $q.defer();
+        var reqs = [];
+
+        var ds_url = dataProvider.url + '/queries/' + dataSource.name;
+        reqs.push($http({
+                method: 'GET',
+                url: ds_url
+            })
+        );
+
+        $q.all(reqs).then(function(response) {
+
+            console.log(response);
+            deferred.resolve(response);
+        });
+
+        return deferred.promise;
+
+    };
+
     service.getMeasurements = function(dataProvider, dataSource, filters, pageSize, offset) {
 
         //var ds_url = dataProvider.url + '/measurements/' + dataSource.name;

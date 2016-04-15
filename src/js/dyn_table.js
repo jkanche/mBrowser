@@ -12,6 +12,7 @@ mTable.directive('dyntable', function() {
         replace: true,
         template: '<div>' +
         '<div ng-if="dataReceived == true">' +
+        '<div class="row">' +
         '<form class="form-inline">' +
         '<div class="form-group pull-right">' +
         '<div class="input-group">' +
@@ -19,9 +20,11 @@ mTable.directive('dyntable', function() {
         '<input type="search" class="form-control" placeholder="Search table" ng-model="searchTable">' +
         '</div>' +
         '</div>' +
-        '<div >' +
+        '</form>' +
+        '</div>' +
+        '<div>' +
         /*style="height: 300px;overflow: auto"*/
-        '<div class="tbContent">' +
+        '<div class="table-responsive">' +
         '<table class="table table-hover">' +
         '<thead>' +
         '<tr>' +
@@ -47,7 +50,8 @@ mTable.directive('dyntable', function() {
         scope: {
             data: '=data',
             selectionType: '@selectiontype',
-            callbackFn: '&callbackfn'
+            callbackFn: '&callbackfn',
+            callbackSelFn: '&callbackselfn'
         },
         controller: function($scope) {
 
@@ -70,7 +74,18 @@ mTable.directive('dyntable', function() {
                     scope.data[index].selected = false;
                 }
 
+                if(scope.selectionType == "single") {
+                    scope.data.forEach(function(d){
+
+                        d.selected = false;
+                    });
+                }
+
                 scope.data[index].selected = !scope.data[index].selected;
+
+                if(scope.callbackSelFn != null) {
+                    scope.callbackSelFn({tSel: scope.data[index]});
+                }
             };
 
             scope.isRowSelected = function(index, row) {

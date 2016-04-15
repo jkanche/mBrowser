@@ -16,37 +16,47 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
         dataSources: {},
         dataSourceObj: {},
         dataAnnotations: {},
+        dataQueries: {},
         dataMeasurements: {}
     };
 
-    //Query builder
-    $scope.qBuilder = {
-        dataSource: "Choose a data source",
-        filterField: "Choose an annotation field",
-        filterOperator: "",
-        filterValue: "",
-        filtMinVal: 1,
-        filtMaxVal: 10
+    //Final Measurement Selection List
+    $scope.selection = {
+        measurements: []
     };
 
-    $scope.fqBuilder = [];
-    $scope.pageSize = 10;
-    $scope.offset = 0;
-    $scope.totalRecords = 0;
+    $scope.initMeasurement = function() {
 
-    //query helper fields
-    $scope.qField = {
-        stats: null,
-        sFilter: null,
-        dataAnnotations: null,
-        minRange: null,
-        maxRange: null,
-        dValues: null
+        //Query builder
+        $scope.qBuilder = {
+            dataSource: "Choose a data source",
+            filterField: "Choose an annotation field",
+            filterOperator: "",
+            filterValue: "",
+            filtMinVal: 1,
+            filtMaxVal: 10
+        };
+
+        $scope.fqBuilder = [];
+        $scope.pageSize = 10;
+        $scope.offset = 0;
+        $scope.totalRecords = 0;
+
+        //query helper fields
+        $scope.qField = {
+            stats: null,
+            sFilter: null,
+            dataAnnotations: null,
+            minRange: null,
+            maxRange: null,
+            dValues: null
+        };
+
+        //UI Toggle form fields
+        $scope.qDataSourceSel = false;
+        $scope.qDataFieldSel = false;
+        $scope.qDataQueries = false;
     };
-
-    //UI Toggle form fields
-    $scope.qDataSourceSel = false;
-    $scope.qDataFieldSel = false;
 
     $scope.qDataSource = function(srcIdx) {
 
@@ -120,7 +130,7 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
 
     $scope.addDataProvider = function(url) {
         $http.get(url + '/dataProviders').then(function(resp) {
-            $scope.data.dataProviders.push({'url': url, 'status': 'AVAILABLE', 'providerType': resp.data.dataProviders[0].serverName });
+            $scope.data.dataProviders.push({'url': url, 'status': 'AVAILABLE', 'providerType': resp.data.dataProviders.serverName });
         }, function(error) {
             $scope.data.dataProviders.push({'url': url, 'status': 'FAIL'});
         });
@@ -147,15 +157,21 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
                 break;
             case 'dataSourceSel':
                 // make requests to both annotations and first x measurements
-                
+
                 $q.all([
                     measurementAPI.getDataAnnotations($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj),
+                    measurementAPI.getDataQueries($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj),
                     measurementAPI.getMeasurements($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj, $scope.fqBuilder, $scope.pageSize, $scope.offset)
                 ])
                     .then(function(response) {
                         console.log(response);
                         $scope.current.dataAnnotations = response[0][0].data.dataAnnotations;
-                        $scope.current.dataMeasurements = response[1][0].data.dataMeasurements;
+                        $scope.current.dataQueries = response[1][0].data.queries;
+                        $scope.current.dataMeasurements = response[2][0].data.dataMeasurements;
+
+                        if($scope.current.dataQueries.length > 0) {
+                            $scope.qDataQueries = true;
+                        }
                         
                     }, function(error) {
                         console.log(error);
@@ -174,6 +190,44 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
                 console.log("nothing to be done on this tab");
                 break;
         }
+    };
+
+    $scope.setDataProviderSel = function(provider) {
+        $scope.initMeasurement();
+    };
+
+
+    $scope.setMeasurementSel = function(measurement) {
+        if(measurement.selected) {
+            $scope.selection.measurements.push({
+                'dataProvider': $scope.getSelectedDataProvider()[0],
+                'dataSource': $scope.current.dataSourceObj,
+                'dataMeasurement':measurement
+            });
+        }
+        else {
+            $scope.selection.measurements.forEach(function(m, idx) {
+                if(m.dataProvider.providerType == $scope.getSelectedDataProvider()[0].providerType &&
+                    m.dataSource.name == $scope.current.dataSourceObj.name &&
+                    m.dataMeasurement.name == measurement.name)  {
+                    $scope.selection.measurements.splice(idx, 1);
+                }
+            });
+        }
+
+    };
+
+    $scope.setDataQuery = function(dq) {
+
+        $scope.fqBuilder = [];
+
+        dq.filters.forEach(function(filt) {
+            $scope.fqBuilder.push({'filterField': filt.filterField, 'filterOperator': filt.filterName, 'filterValue': filt.filterValue});
+        });
+
+        $scope.data.dataMeasurements = {};
+        $scope.loadContent('dataMeasurements');
+
     };
 
     $scope.getSelectedDataProvider = function() {
