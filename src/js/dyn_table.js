@@ -58,9 +58,6 @@ mTable.directive('dyntable', function() {
         },
         link: function(scope, elem, attrs) {
 
-            //TODO: implement infinite scroll (load data)
-            // emit to parent -> parent loads more data!
-
             scope.sortField = "";
             scope.sortReverse = false;
             scope.searchTable = "";
