@@ -65,8 +65,6 @@ mServices.factory('measurementAPI', function($http, $q) {
         );
 
         $q.all(reqs).then(function(response) {
-
-            console.log(response);
             deferred.resolve(response);
         });
 

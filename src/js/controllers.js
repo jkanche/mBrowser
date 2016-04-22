@@ -38,7 +38,7 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
         };
 
         $scope.fqBuilder = [];
-        $scope.pageSize = 10;
+        $scope.pageSize = 40;
         $scope.offset = 0;
         $scope.totalRecords = 0;
 
@@ -143,13 +143,11 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
     };
 
     $scope.loadContent = function(id) {
-        console.log("Loading selected Tab data");
 
         switch(id) {
             case 'dataSources':
                 measurementAPI.getDataSources($scope.getSelectedDataProvider())
                     .then(function(response) {
-                        console.log(response);
                         $scope.current.dataSources = response[0].data.dataSources;
                     }, function(error) {
                         console.log(error);
@@ -160,20 +158,27 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
 
                 $q.all([
                     measurementAPI.getDataAnnotations($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj),
-                    measurementAPI.getDataQueries($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj),
                     measurementAPI.getMeasurements($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj, $scope.fqBuilder, $scope.pageSize, $scope.offset)
                 ])
                     .then(function(response) {
-                        console.log(response);
                         $scope.current.dataAnnotations = response[0][0].data.dataAnnotations;
-                        $scope.current.dataQueries = response[1][0].data.queries;
-                        $scope.current.dataMeasurements = response[2][0].data.dataMeasurements;
+                        //$scope.current.dataQueries = response[1][0].data.queries;
+                        $scope.current.dataMeasurements = response[1][0].data.dataMeasurements;
+                        $scope.totalRecords = response[1][0].data.totalCount;
+
+                        measurementAPI.getDataQueries($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj)
+                            .then(function(response) {
+                                $scope.current.dataQueries = response[0].data.queries;
+                            }, function(error) {
+                               console.log(error)
+                            });
 
                         if($scope.current.dataQueries.length > 0) {
                             $scope.qDataQueries = true;
                         }
                         
                     }, function(error) {
+                        console.log("error mode");
                         console.log(error);
                         
                     });
@@ -181,14 +186,11 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
             case 'dataMeasurements':
                 measurementAPI.getMeasurements($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj, $scope.fqBuilder, $scope.pageSize, $scope.offset)
                     .then(function(response) {
-                        console.log(response);
                         $scope.current.dataMeasurements = response[0].data.dataMeasurements;
+                        $scope.totalRecords = response[0].data.totalCount;
                     }, function(error) {
-                        conosle.log(error);
+                        console.log(error);
                     });
-            default:
-                console.log("nothing to be done on this tab");
-                break;
         }
     };
 
@@ -242,6 +244,19 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
 
         return daProv;
     };
+
+    $scope.loadMore = function() {
+
+        if($scope.current.dataMeasurements.length < $scope.totalRecords) {
+            measurementAPI.getMeasurements($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj, $scope.fqBuilder, $scope.pageSize, $scope.offset)
+                .then(function(response) {
+                    $scope.current.dataMeasurements = $scope.current.dataMeasurements.concat(response[0].data.dataMeasurements);
+                }, function(error) {
+                    console.log(error);
+                });
+        }
+    };
+
 
     $scope.loadDataProviders();
 });

@@ -3,7 +3,7 @@
  * Date: 3/8/2016
  */
 
-var mTable = angular.module('dynamicTable', []);
+var mTable = angular.module('dynamicTable', ['lrInfiniteScroll']);
 
 mTable.directive('dyntable', function() {
     return {
@@ -24,7 +24,7 @@ mTable.directive('dyntable', function() {
         '</div>' +
         '<div>' +
         /*style="height: 300px;overflow: auto"*/
-        '<div class="table-responsive">' +
+        '<div class="table-responsive" style="max-height: 500px;overflow: auto" lr-infinite-scroll="loadMore">' +
         '<table class="table table-hover">' +
         '<thead>' +
         '<tr>' +
@@ -37,7 +37,7 @@ mTable.directive('dyntable', function() {
         '</thead>' +
         '<tbody>' +
         '<tr ng-repeat="row in data | orderBy:sortField:sortReverse | filter:searchTable track by $index" ng-class="{info: isRowSelected($index, row)}" ng-click="setRowSelected($index, row);">' +
-        '<td ng-repeat="cell in row">{{cell}}</td>' +
+        '<td ng-repeat="head in headers">{{row[head]}}</td>' +
         '</tr>' +
         '</tbody>' +
         '</table>' +
