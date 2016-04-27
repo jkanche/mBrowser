@@ -169,13 +169,13 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
                         measurementAPI.getDataQueries($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj)
                             .then(function(response) {
                                 $scope.current.dataQueries = response[0].data.queries;
+
+                                if($scope.current.dataQueries.length > 0) {
+                                    $scope.qDataQueries = true;
+                                }
                             }, function(error) {
                                console.log(error)
                             });
-
-                        if($scope.current.dataQueries.length > 0) {
-                            $scope.qDataQueries = true;
-                        }
                         
                     }, function(error) {
                         console.log("error mode");
@@ -224,7 +224,7 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
         $scope.fqBuilder = [];
 
         dq.filters.forEach(function(filt) {
-            $scope.fqBuilder.push({'filterField': filt.filterField, 'filterOperator': filt.filterName, 'filterValue': filt.filterValue});
+            $scope.fqBuilder.push({'filterField': filt.filterField, 'filterName': filt.filterName, 'filterValue': filt.filterValue});
         });
 
         $scope.data.dataMeasurements = {};
