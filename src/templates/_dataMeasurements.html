@@ -21,7 +21,7 @@
                             </ul>
                         </div>
                         <div class="form-group form-inline" ng-show="qDataFieldSel">
-                            <label>Not ?</label><input type="checkbox" ng-model="qBuilder.filterNegate">
+                            <label>Not - </label><input type="checkbox" ng-model="qBuilder.filterNegate">
                             <select class="form-control" ng-model="qBuilder.filterOperator" ng-options="filter.name for filter in qField.sFilter" ng-click="$parent.qFilterSelect(qBuilder.filterOperator)"></select>
                         </div>
                         <div class="form-group form-inline" ng-show="qDataFilterSel">
@@ -71,7 +71,7 @@
             </div>
             <div class="panel-body">
                 <ul class="list-group">
-                    <li ng-repeat="m in selection.measurements">{{m.dataProvider.providerType}}, {{m.dataSource.name}}, {{m.dataMeasurement.name}}
+                    <li class="list-group-item" ng-repeat="m in selection.measurements">{{m.dataMeasurement.name}} - {{m.dataProvider.providerType}}-{{m.dataSource.name}}
                         <button type="button" class="close" aria-label="Close" ng-click="$parent.removeMeasurement($index)"><span aria-hidden="true">&times;</span></button>
                     </li>
                 </ul>

@@ -143,12 +143,18 @@ mTable.directive('dyntable', function() {
 
                 if(scope.selectallCtrl == true) {
                     scope.data.forEach(function(d, idx) {
+                        if(d.selected == true) {
+                            scope.setRowSelected(idx);
+                        }
                         d.selected = false;
                         scope.setRowSelected(idx);
                     });
                 }
                 else {
                     scope.data.forEach(function(d, idx) {
+                        if(d.selected == false ) {
+                            scope.setRowSelected(idx);
+                        }
                         d.selected = true;
                         scope.setRowSelected(idx);
                     });
