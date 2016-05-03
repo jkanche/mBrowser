@@ -2,7 +2,7 @@
  * Created by jayaram on 4/12/16.
  */
 
-var mControllers = angular.module('mControllers', ['ui.bootstrap', 'dynamicTable', 'mServices']);
+var mControllers = angular.module('mControllers', ['ui.bootstrap', 'dynamicTable', 'mServices', 'ui.slider']);
 
 mControllers.controller('TabController', function($scope, $http, measurementAPI, $q) {
 
@@ -34,7 +34,8 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
             filterOperator: "",
             filterValue: "",
             filtMinVal: 1,
-            filtMaxVal: 10
+            filtMaxVal: 10,
+            filterNegate: false
         };
 
         $scope.fqBuilder = [];
@@ -56,7 +57,10 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
         $scope.qDataSourceSel = false;
         $scope.qDataFieldSel = false;
         $scope.qDataQueries = false;
+        $scope.qDataFilterSel = false;
     };
+
+    $scope.slider = null;
 
     $scope.qDataSource = function(srcIdx) {
 
@@ -73,8 +77,24 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
         $scope.qField.stats = da.stats;
         $scope.qField.sFilter = da.filter;
         $scope.qField.dValues = da.stats.distinctValues;
+        //$scope.qField.slider = 10;
         //$scope.qField.minRange = 10;
         //$scope.qField.maxRange = 100;
+    };
+
+
+    $scope.qFilterSelect = function(filter) {
+
+        $scope.qDataFilterSel = true;
+
+        if(filter.name == 'range') {
+/*            $scope.slider = new Slider("#rangeSlider", {
+                min: $scope.qField.stats.minRange,
+                max: $scope.qField.stats.maxRange,
+                value: [$scope.qField.stats.minRange, $scope.qField.stats.maxRange],
+                focus: true
+            });*/
+        }
     };
 
     $scope.applyFilter = function(query) {
@@ -82,15 +102,19 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
         var filtVal = "";
 
         if(query.filterOperator.name == 'range') {
+
+            //var values = $scope.slider.getValue();
+
             filtVal = qBuilder.filtMinVal + "," + qBuilder.filtMaxVal;
         }
         else {
             filtVal = query.filterValue;
         }
 
-        $scope.fqBuilder.push({filterField: query.filterField, filterOperator: query.filterOperator.name, filterValue: filtVal});
+        $scope.fqBuilder.push({filterField: query.filterField, filterName: query.filterOperator.name, filterValue: filtVal, negate: query.filterNegate});
 
         $scope.qDataFieldSel = false;
+        $scope.qDataFilterSel = false;
 
         var current_ds = $scope.qBuilder.dataSource;
 
@@ -216,7 +240,13 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
                 }
             });
         }
+    };
 
+    $scope.removeMeasurement = function(index) {
+        var tmp = $scope.selection.measurements[index];
+        $scope.selection.measurements.splice(index, 1);
+        var idx = $scope.current.dataMeasurements.indexOf(tmp.dataMeasurement);
+        $scope.current.dataMeasurements[idx].selected = false;
     };
 
     $scope.setDataQuery = function(dq) {
@@ -256,7 +286,6 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
                 });
         }
     };
-
 
     $scope.loadDataProviders();
 });

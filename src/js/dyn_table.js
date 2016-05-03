@@ -17,17 +17,18 @@ mTable.directive('dyntable', function() {
         '<div class="form-group pull-right">' +
         '<div class="input-group">' +
         '<div class="input-group-addon"><span class="glyphicon glyphicon-search"></span></div>' +
-        '<input type="search" class="form-control" placeholder="Search table" ng-model="searchTable">' +
+        '<input type="search" class="form-control" placeholder="search" ng-model="searchTable">' +
         '</div>' +
         '</div>' +
         '</form>' +
         '</div>' +
         '<div>' +
         /*style="height: 300px;overflow: auto"*/
-        '<div class="table-responsive" style="max-height: 500px;overflow: auto" lr-infinite-scroll="loadMore">' +
-        '<table class="table table-hover">' +
+        '<div style="max-height: 500px;overflow: auto" lr-infinite-scroll="loadMore">' +
+        '<table class="table table-hover table-responsive">' +
         '<thead>' +
         '<tr>' +
+        '<th ng-show="hasSelection()"><!--<input type="checkbox" ng-model="selectallCtrl" ng-change="selectAllData()">--><a href="#" ng-click="selectAllData()"> select all</a></th>' +
         '<th ng-repeat="head in headers">' +
         '<a href="#" ng-click="$parent.sortField = head; $parent.sortReverse = !sortReverse">{{head}}' +
         '<span ng-show="$parent.sortField == head && !$parent.sortReverse" class="glyphicon glyphicon-chevron-down"></span>' +
@@ -36,9 +37,10 @@ mTable.directive('dyntable', function() {
         '</th>' +
         '</thead>' +
         '<tbody>' +
-        '<tr ng-repeat="row in data | orderBy:sortField:sortReverse | filter:searchTable track by $index" ng-class="{info: isRowSelected($index, row)}" ng-click="setRowSelected($index, row);">' +
+        '<tr ng-repeat="row in data | orderBy:sortField:sortReverse | filter:searchTable track by $index" ng-class="{info: isRowSelected($index)}" ng-click="setRowSelected($index)">' +
+        '<td ng-show="hasSelection()"><input type="checkbox" ng-model="row.selected"></td>' +
         '<td ng-repeat="head in headers">{{row[head]}}</td>' +
-        '</tr>' +
+        '</td>' +
         '</tbody>' +
         '</table>' +
         '<div style="clear: both;"></div>' +
@@ -51,7 +53,8 @@ mTable.directive('dyntable', function() {
             data: '=data',
             selectionType: '@selectiontype',
             callbackFn: '&callbackfn',
-            callbackSelFn: '&callbackselfn'
+            callbackSelFn: '&callbackselfn',
+            showSelection: '@showselection'
         },
         controller: function($scope) {
 
@@ -64,8 +67,9 @@ mTable.directive('dyntable', function() {
             scope.showFilterMenu = false;
             scope.showFilterInput = false;
             scope.dataReceived = false;
+            scope.selectallCtrl = false;
 
-            scope.setRowSelected = function(index, row) {
+            scope.setRowSelected = function(index) {
 
                 if(scope.data[index].selected == null ) {
                     scope.data[index].selected = false;
@@ -73,19 +77,31 @@ mTable.directive('dyntable', function() {
 
                 if(scope.selectionType == "single") {
                     scope.data.forEach(function(d){
-
                         d.selected = false;
                     });
                 }
 
                 scope.data[index].selected = !scope.data[index].selected;
 
-                if(scope.callbackSelFn != null) {
+                if(angular.isDefined(scope.callbackSelFn)) {
                     scope.callbackSelFn({tSel: scope.data[index]});
                 }
             };
 
-            scope.isRowSelected = function(index, row) {
+            scope.setRowSelectedCtrl = function(index) {
+
+                if(scope.selectionType == "single") {
+                    scope.data.forEach(function(d){
+                        d.selected = false;
+                    });
+                }
+
+                if(angular.isDefined(scope.callbackSelFn)) {
+                    scope.callbackSelFn({tSel: scope.data[index]});
+                }
+            };
+
+            scope.isRowSelected = function(index) {
 
                 if(scope.data[index].selected == null ) {
                     scope.data[index].selected = false;
@@ -107,8 +123,38 @@ mTable.directive('dyntable', function() {
             }, true);
 
             scope.loadMore = function() {
-                scope.callbackFn();
-            }
+                if(angular.isDefined(attrs.callbackfn)) {
+                    scope.callbackFn();
+                }
+            };
+
+            scope.hasSelection = function() {
+                if(angular.isDefined(attrs.showselection)) {
+                    if(scope.showSelection == "true") {
+                        return true;
+                    }
+                }
+                return false;
+            };
+
+            scope.selectAllData = function() {
+
+                scope.selectallCtrl = !scope.selectallCtrl;
+
+                if(scope.selectallCtrl == true) {
+                    scope.data.forEach(function(d, idx) {
+                        d.selected = false;
+                        scope.setRowSelected(idx);
+                    });
+                }
+                else {
+                    scope.data.forEach(function(d, idx) {
+                        d.selected = true;
+                        scope.setRowSelected(idx);
+                    });
+                }
+            };
+
         }
     }
 });

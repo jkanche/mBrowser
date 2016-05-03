@@ -5,9 +5,12 @@
   "license": "MIT",
   "dependencies": {
     "angular": "1.5.x",
-    "jquery": "2.1.4",
+    "jquery": "^2.2.3",
     "bootstrap": "3.3.6",
     "angular-bootstrap": "1.2.4",
-    "lrInfiniteScroll": "^1.0.0"
+    "lrInfiniteScroll": "^1.0.0",
+    "seiyria-bootstrap-slider": "^7.0.3",
+    "angular-bootstrap-slider": "^0.1.27",
+    "angular-ui-slider": "^0.3.1"
   }
 }
