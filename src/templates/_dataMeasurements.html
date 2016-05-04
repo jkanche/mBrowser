@@ -21,7 +21,9 @@
                             </ul>
                         </div>
                         <div class="form-group form-inline" ng-show="qDataFieldSel">
-                            <label>Not - </label><input type="checkbox" ng-model="qBuilder.filterNegate">
+                            <div class="checkbox">
+                                <label>Not <input type="checkbox" ng-model="qBuilder.filterNegate"></label>
+                            </div>
                             <select class="form-control" ng-model="qBuilder.filterOperator" ng-options="filter.name for filter in qField.sFilter" ng-click="$parent.qFilterSelect(qBuilder.filterOperator)"></select>
                         </div>
                         <div class="form-group form-inline" ng-show="qDataFilterSel">
@@ -38,7 +40,7 @@
                 </div>
                 <div class="form-group">
                     <ul class="list-inline">
-                        <li class="bg-info" ng-repeat="fil in fqBuilder"> {{fil.filterField}}: {{fil.negate == true ? '' : '!'}}{{fil.filterName}} {{fil.filterValue}}
+                        <li class="bg-info" ng-repeat="fil in fqBuilder"> {{fil.filterField}}: {{fil.negate == true ? '!' : ''}}{{fil.filterName}} {{fil.filterValue}}
                             <button type="button" class="close" aria-label="Close" ng-click="removeFilter($index)"><span aria-hidden="true">&times;</span></button>
                         </li>
                     </ul>
@@ -53,7 +55,7 @@
                             <div ng-if="qDataQueries == false"> No queries found!! </div>
                             <div ng-if="qDataQueries == true">
                                 <ul class="list-group">
-                                    <li ng-repeat="dq in current.dataQueries"><a href='#' ng-click="$parent.setDataQuery(dq)">{{dq.queryName}}</a></li>
+                                    <li class="list-group-item" ng-repeat="dq in current.dataQueries"><a href='#' ng-click="$parent.setDataQuery(dq)">{{dq.queryName}}</a></li>
                                 </ul>
                             </div>
                         </uib-accordion-group>
@@ -69,9 +71,9 @@
             <div class="panel-heading">
                 <p>Currently Selected Measurements</p>
             </div>
-            <div class="panel-body">
+            <div class="panel-body" style="max-height: 500px;overflow: auto">
                 <ul class="list-group">
-                    <li class="list-group-item" ng-repeat="m in selection.measurements">{{m.dataMeasurement.name}} - {{m.dataProvider.providerType}}-{{m.dataSource.name}}
+                    <li class="list-group-item" ng-repeat="m in selection.measurements">{{m.dataMeasurement.name}} - {{m.dataProvider.providerType}} - {{m.dataSource.name}}
                         <button type="button" class="close" aria-label="Close" ng-click="$parent.removeMeasurement($index)"><span aria-hidden="true">&times;</span></button>
                     </li>
                 </ul>

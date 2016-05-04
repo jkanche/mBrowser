@@ -14,11 +14,9 @@ mTable.directive('dyntable', function() {
         '<div ng-if="dataReceived == true">' +
         '<div class="row">' +
         '<form class="form-inline">' +
-        '<div class="form-group pull-right">' +
-        '<div class="input-group">' +
+        '<div class="form-group pull-right input-group">' +
         '<div class="input-group-addon"><span class="glyphicon glyphicon-search"></span></div>' +
         '<input type="search" class="form-control" placeholder="search" ng-model="searchTable">' +
-        '</div>' +
         '</div>' +
         '</form>' +
         '</div>' +
@@ -37,7 +35,7 @@ mTable.directive('dyntable', function() {
         '</th>' +
         '</thead>' +
         '<tbody>' +
-        '<tr ng-repeat="row in data | orderBy:sortField:sortReverse | filter:searchTable track by $index" ng-class="{info: isRowSelected($index)}" ng-click="setRowSelected($index)">' +
+        '<tr ng-repeat="row in data | orderBy:sortField:sortReverse | filter:searchTable track by $index" ng-class="{info: isRowSelected($index, row)}" ng-click="setRowSelected($index, row)">' +
         '<td ng-show="hasSelection()"><input type="checkbox" ng-model="row.selected"></td>' +
         '<td ng-repeat="head in headers">{{row[head]}}</td>' +
         '</td>' +
@@ -69,7 +67,9 @@ mTable.directive('dyntable', function() {
             scope.dataReceived = false;
             scope.selectallCtrl = false;
 
-            scope.setRowSelected = function(index) {
+            scope.setRowSelected = function(index, row) {
+
+                index = scope.data.indexOf(row);
 
                 if(scope.data[index].selected == null ) {
                     scope.data[index].selected = false;
@@ -88,20 +88,9 @@ mTable.directive('dyntable', function() {
                 }
             };
 
-            scope.setRowSelectedCtrl = function(index) {
+            scope.isRowSelected = function(index, row) {
 
-                if(scope.selectionType == "single") {
-                    scope.data.forEach(function(d){
-                        d.selected = false;
-                    });
-                }
-
-                if(angular.isDefined(scope.callbackSelFn)) {
-                    scope.callbackSelFn({tSel: scope.data[index]});
-                }
-            };
-
-            scope.isRowSelected = function(index) {
+                index = scope.data.indexOf(row);
 
                 if(scope.data[index].selected == null ) {
                     scope.data[index].selected = false;
@@ -144,19 +133,19 @@ mTable.directive('dyntable', function() {
                 if(scope.selectallCtrl == true) {
                     scope.data.forEach(function(d, idx) {
                         if(d.selected == true) {
-                            scope.setRowSelected(idx);
+                            scope.setRowSelected(idx, d);
                         }
                         d.selected = false;
-                        scope.setRowSelected(idx);
+                        scope.setRowSelected(idx, d);
                     });
                 }
                 else {
                     scope.data.forEach(function(d, idx) {
                         if(d.selected == false ) {
-                            scope.setRowSelected(idx);
+                            scope.setRowSelected(idx, d);
                         }
                         d.selected = true;
-                        scope.setRowSelected(idx);
+                        scope.setRowSelected(idx, d);
                     });
                 }
             };

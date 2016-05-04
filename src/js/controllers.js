@@ -190,6 +190,8 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
                         $scope.current.dataMeasurements = response[1][0].data.dataMeasurements;
                         $scope.totalRecords = response[1][0].data.totalCount;
 
+                        $scope.syncMeasurements();
+
                         measurementAPI.getDataQueries($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj)
                             .then(function(response) {
                                 $scope.current.dataQueries = response[0].data.queries;
@@ -246,7 +248,26 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
         var tmp = $scope.selection.measurements[index];
         $scope.selection.measurements.splice(index, 1);
         var idx = $scope.current.dataMeasurements.indexOf(tmp.dataMeasurement);
-        $scope.current.dataMeasurements[idx].selected = false;
+        if (idx != -1) {
+            $scope.current.dataMeasurements[idx].selected = false;
+        }
+    };
+
+    $scope.syncMeasurements = function() {
+
+        var tmpM = [];
+
+        $scope.selection.measurements.forEach(function(m) {
+            tmpM.push(m.dataMeasurement);
+        });
+
+        $scope.current.dataMeasurements.forEach(function(n) {
+            n.selected = true;
+            var idx = tmpM.indexOf(n);
+            if(idx == -1) {
+                n.selected = false;
+            }
+        });
     };
 
     $scope.setDataQuery = function(dq) {
@@ -278,9 +299,10 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
     $scope.loadMore = function() {
 
         if($scope.current.dataMeasurements.length < $scope.totalRecords) {
-            measurementAPI.getMeasurements($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj, $scope.fqBuilder, $scope.pageSize, $scope.offset)
+            measurementAPI.getMeasurements($scope.getSelectedDataProvider()[0], $scope.current.dataSourceObj, $scope.fqBuilder, $scope.pageSize, $scope.current.dataMeasurements.length)
                 .then(function(response) {
                     $scope.current.dataMeasurements = $scope.current.dataMeasurements.concat(response[0].data.dataMeasurements);
+                    $scope.syncMeasurements();
                 }, function(error) {
                     console.log(error);
                 });
