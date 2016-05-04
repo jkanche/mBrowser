@@ -27,14 +27,11 @@
                             <select class="form-control" ng-model="qBuilder.filterOperator" ng-options="filter.name for filter in qField.sFilter" ng-click="$parent.qFilterSelect(qBuilder.filterOperator)"></select>
                         </div>
                         <div class="form-group form-inline" ng-show="qDataFilterSel">
-                            <div ng-if="qBuilder.filterOperator.name == 'range'">
-                                <!--<input class="form-control col-md-2" id="rangeSlider" type="text"/>-->
-                                <!--<slider ng-model="qField.slider" min="10" max="100" value="50"></slider>-->
-                                <!--<span slider ng-model="qField.slider" min="45"></span>-->
-                                <div ui-slider min="0" max="20" ng-model="qField.slider"></div>
+                            <div class="form-control" style="min-width: 75px" ng-if="qBuilder.filterOperator.name == 'range'">
+                                <span slider ng-model="qField.sliderVal" min="qField.stats.minRange" max="qField.stats.maxRange" range="true" slider-tooltip="true"></span>
                             </div>
                             <input ng-if="qBuilder.filterOperator.name != 'range'" type="text" class="form-control" uib-typeahead="dVal for dVal in qField.dValues | filter:$viewValue | limitTo:8" placeholder="keyword" ng-model="qBuilder.filterValue">
-                            <button class="btn btn-primary" type="button" ng-click="applyFilter(qBuilder)">Apply Filter</button>
+                            <button class="btn btn-primary form-control" type="button" ng-click="applyFilter(qBuilder)">Apply Filter</button>
                         </div>
                     </div>
                 </div>
@@ -47,7 +44,6 @@
                 </div>
             </div>
             <div class="panel-body">
-                <div ui-slider min="0" max="20" ng-model="qField.slider"></div>
                 <div ng-if="qDataSourceSel == false"> Please Select a Data Source </div>
                 <div ng-if="qDataSourceSel == true">
                     <uib-accordion close-others="oneAtATime">

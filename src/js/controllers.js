@@ -2,7 +2,7 @@
  * Created by jayaram on 4/12/16.
  */
 
-var mControllers = angular.module('mControllers', ['ui.bootstrap', 'dynamicTable', 'mServices', 'ui.slider']);
+var mControllers = angular.module('mControllers', ['ui.bootstrap', 'dynamicTable', 'mServices', 'ui.bootstrap-slider']);
 
 mControllers.controller('TabController', function($scope, $http, measurementAPI, $q) {
 
@@ -50,7 +50,8 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
             dataAnnotations: null,
             minRange: null,
             maxRange: null,
-            dValues: null
+            dValues: null,
+            sliderVal: []
         };
 
         //UI Toggle form fields
@@ -59,8 +60,6 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
         $scope.qDataQueries = false;
         $scope.qDataFilterSel = false;
     };
-
-    $scope.slider = null;
 
     $scope.qDataSource = function(srcIdx) {
 
@@ -78,7 +77,7 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
         $scope.qField.sFilter = da.filter;
         $scope.qField.dValues = da.stats.distinctValues;
         //$scope.qField.slider = 10;
-        //$scope.qField.minRange = 10;
+        //$scope.qField.minRange = da.stats;
         //$scope.qField.maxRange = 100;
     };
 
@@ -87,14 +86,10 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
 
         $scope.qDataFilterSel = true;
 
-        if(filter.name == 'range') {
-/*            $scope.slider = new Slider("#rangeSlider", {
-                min: $scope.qField.stats.minRange,
-                max: $scope.qField.stats.maxRange,
-                value: [$scope.qField.stats.minRange, $scope.qField.stats.maxRange],
-                focus: true
-            });*/
-        }
+/*        if(filter.name == 'range') {
+            $scope.qField.minRange = 10;
+            $scope.qField.maxRange = 100;
+        }*/
     };
 
     $scope.applyFilter = function(query) {
@@ -102,10 +97,8 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
         var filtVal = "";
 
         if(query.filterOperator.name == 'range') {
-
-            //var values = $scope.slider.getValue();
-
-            filtVal = qBuilder.filtMinVal + "," + qBuilder.filtMaxVal;
+            var values = $scope.qField.sliderVal;
+            filtVal = values[0] + "," + values[1];
         }
         else {
             filtVal = query.filterValue;
@@ -214,6 +207,7 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
                     .then(function(response) {
                         $scope.current.dataMeasurements = response[0].data.dataMeasurements;
                         $scope.totalRecords = response[0].data.totalCount;
+                        $scope.syncMeasurements();
                     }, function(error) {
                         console.log(error);
                     });
@@ -234,6 +228,7 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
             });
         }
         else {
+            //refactor
             $scope.selection.measurements.forEach(function(m, idx) {
                 if(m.dataProvider.providerType == $scope.getSelectedDataProvider()[0].providerType &&
                     m.dataSource.name == $scope.current.dataSourceObj.name &&
@@ -255,19 +250,23 @@ mControllers.controller('TabController', function($scope, $http, measurementAPI,
 
     $scope.syncMeasurements = function() {
 
-        var tmpM = [];
+        //refactor
 
         $scope.selection.measurements.forEach(function(m) {
-            tmpM.push(m.dataMeasurement);
+            $scope.current.dataMeasurements.forEach(function(n) {
+                if(m.dataMeasurement.name == n.name) {
+                    n.selected = true;
+                }
+            });
         });
 
-        $scope.current.dataMeasurements.forEach(function(n) {
+/*        $scope.current.dataMeasurements.forEach(function(n) {
             n.selected = true;
-            var idx = tmpM.indexOf(n);
-            if(idx == -1) {
+            var idx = tmpM.find(n);
+            if(idx === -1) {
                 n.selected = false;
             }
-        });
+        });*/
     };
 
     $scope.setDataQuery = function(dq) {
