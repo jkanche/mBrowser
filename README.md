@@ -1,6 +1,4 @@
-# mBrowser
-
-Measurement browser for Epiviz
+# Measurement browser for Epiviz
 
 1. download repo
 2. bower install
